@@ -1,0 +1,342 @@
+.anomalies-page {
+  padding: 1.5rem;
+  min-height: calc(100vh - 58px);
+  background: #f0f3fa;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.btn-quality, .btn-export {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-quality {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1a3a8f;
+}
+
+.btn-export {
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.btn-quality svg, .btn-export svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Filtres */
+.filters-bar {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.5rem 0.8rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-box svg {
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.85rem;
+}
+
+.filter-select, .filter-date {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* Stats Cards */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid #1a3a8f;
+}
+
+.stat-card.critical {
+  border-left-color: #dc2626;
+}
+
+.stat-icon {
+  font-size: 2rem;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-top: 0.2rem;
+}
+
+/* Liste des anomalies */
+.anomalies-list {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.anomalies-header {
+  display: grid;
+  grid-template-columns: 100px 90px 180px 120px 130px 140px 120px 80px;
+  background: #f9fafb;
+  padding: 0.8rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.anomaly-item {
+  display: grid;
+  grid-template-columns: 100px 90px 180px 120px 130px 140px 120px 80px;
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.anomaly-item:hover {
+  background: #f9fafb;
+}
+
+.anomaly-item.severity-critical { border-left: 3px solid #dc2626; }
+.anomaly-item.severity-high { border-left: 3px solid #f97316; }
+.anomaly-item.severity-medium { border-left: 3px solid #eab308; }
+.anomaly-item.severity-low { border-left: 3px solid #22c55e; }
+
+.anomaly-time .time {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #111827;
+}
+
+.anomaly-time .date {
+  font-size: 0.65rem;
+  color: #9ca3af;
+}
+
+.severity-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.severity-badge.critical { background: #fee2e2; color: #dc2626; }
+.severity-badge.high { background: #ffedd5; color: #f97316; }
+.severity-badge.medium { background: #fef3c7; color: #eab308; }
+.severity-badge.low { background: #dcfce7; color: #22c55e; }
+
+.anomaly-type {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.type-icon {
+  font-size: 1.2rem;
+}
+
+.type-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.status-badge.status-nouvelle { background: #fef3c7; color: #d97706; }
+.status-badge.status-en_cours { background: #eff6ff; color: #1a3a8f; }
+.status-badge.status-resolue { background: #dcfce7; color: #16a34a; }
+
+.anomaly-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+}
+
+.action-btn.view {
+  background: #eff6ff;
+  color: #1a3a8f;
+}
+
+.action-btn.resolve {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.action-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* No anomalies */
+.no-anomalies {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 16px;
+}
+
+.no-anomalies-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Loading */
+.anomalies-page.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #1a3a8f;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1200px) {
+  .anomalies-header, .anomaly-item {
+    grid-template-columns: 90px 80px 160px 100px 110px 120px 100px 70px;
+  }
+}
+
+@media (max-width: 900px) {
+  .stats-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .anomalies-header, .anomaly-item {
+    display: none;
+  }
+  
+  .anomaly-item {
+    display: block;
+    padding: 1rem;
+  }
+  
+  .anomaly-item > div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .anomaly-item > div::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+  }
+}

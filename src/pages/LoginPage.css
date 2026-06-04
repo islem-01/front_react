@@ -1,0 +1,83 @@
+.login-page {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background: #e8ecf5;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Container card wrapping both panels */
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 1050px;
+  min-height: 620px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow:
+    0 25px 60px rgba(10, 23, 53, 0.25),
+    0 8px 24px rgba(10, 23, 53, 0.12);
+}
+
+/* ── Right panel ─────────────────────────── */
+.login-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #ffffff;
+  overflow: hidden;
+  padding: 2.5rem 2rem 0;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 1.5rem;
+}
+
+/* People silhouette illustration at the bottom */
+.login-bottom-illustration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  z-index: 1;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.login-bottom-illustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+/* Responsive */
+@media (max-width: 820px) {
+  .login-container {
+    flex-direction: column;
+    border-radius: 0;
+    min-height: 100vh;
+    max-width: 100%;
+    box-shadow: none;
+  }
+
+  .login-right {
+    flex: 1;
+    padding: 2rem 1.5rem 6rem;
+  }
+
+  .login-bottom-illustration {
+    height: 70px;
+  }
+}
