@@ -37,6 +37,44 @@
   gap: 0.75rem;
 }
 
+/* ==================== DATE ET HEURE ==================== */
+/* Date et Heure - Version 5 : Carte avec ombre */
+.topbar-datetime {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8ecf5;
+}
+
+.topbar-calendar-icon {
+  color: #1a3a8f;
+}
+
+.topbar-calendar-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.topbar-date-large {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.topbar-time-large {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a3a8f;
+  font-family: monospace;
+  background: #f0f3fa;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+}
+
 /* Search bar */
 .topbar-search {
   display: flex;
@@ -176,4 +214,15 @@
 .topbar-chevron svg {
   width: 14px;
   height: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .topbar-datetime {
+    display: none;
+  }
+  
+  .topbar-right {
+    gap: 0.5rem;
+  }
 }

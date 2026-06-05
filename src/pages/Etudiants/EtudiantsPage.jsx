@@ -15,6 +15,7 @@ const generateMockStudents = () => {
   const groupes = ["A", "B", "C"];
   const prenoms = ["Ahmed", "Sofia", "Yassine", "Nadia", "Karim", "Leila", "Oussama", "Amira", "Mohamed", "Ines", "Hichem", "Fatima", "Rami", "Mariem", "Omar"];
   const noms = ["Ben Ali", "Touati", "Khelil", "Mansouri", "Bennour", "Saidi", "Hamdi", "Chenini", "Salah", "Trabelsi", "Jaouadi", "Zahra", "Gharbi", "Mabrouk", "Chakroun"];
+  const statuts = ["Actif", "Actif", "Actif", "Actif", "Suspendu", "Diplômé"];
   
   const students = [];
   for (let i = 1; i <= 48; i++) {
@@ -24,7 +25,7 @@ const generateMockStudents = () => {
       id: `IIT${String(i).padStart(5, '0')}`,
       prenom: prenoms[i % prenoms.length],
       nom: noms[i % noms.length],
-      photo: i % 2 === 0 ? "👩" : "👨",
+      photo: null,
       niveau: niveau,
       filiere: filiere,
       groupe: groupes[Math.floor(Math.random() * groupes.length)],
@@ -36,7 +37,7 @@ const generateMockStudents = () => {
       adresse: `${Math.floor(Math.random() * 100)} Rue ${["Habib Bourguiba", "Farhat Hached", "Mohamed V", "de la Liberté", "de Carthage"][Math.floor(Math.random() * 5)]}, ${["Tunis", "Sfax", "Sousse", "Bizerte", "Nabeul"][Math.floor(Math.random() * 5)]}`,
       inscription: `202${Math.floor(Math.random() * 4)}`,
       moyenne: (Math.random() * 6 + 10).toFixed(2),
-      statut: ["Actif", "Suspendu", "Diplômé"][Math.floor(Math.random() * 3)],
+      statut: statuts[Math.floor(Math.random() * statuts.length)],
       examens: [],
       presence: Math.floor(Math.random() * 30)
     });
@@ -61,7 +62,6 @@ export default function EtudiantsPage() {
   const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
-    // Simuler le chargement des données
     setTimeout(() => {
       setStudents(generateMockStudents());
       setLoading(false);
@@ -159,9 +159,9 @@ export default function EtudiantsPage() {
 
   const getStatutBadge = (statut) => {
     switch(statut) {
-      case "Actif": return <span className="statut-badge actif">🟢 Actif</span>;
-      case "Suspendu": return <span className="statut-badge suspendu">🟡 Suspendu</span>;
-      case "Diplômé": return <span className="statut-badge diplome">🎓 Diplômé</span>;
+      case "Actif": return <span className="statut-badge actif">Actif</span>;
+      case "Suspendu": return <span className="statut-badge suspendu">Suspendu</span>;
+      case "Diplômé": return <span className="statut-badge diplome">Diplômé</span>;
       default: return <span className="statut-badge">{statut}</span>;
     }
   };
@@ -177,107 +177,77 @@ export default function EtudiantsPage() {
 
   return (
     <div className="etudiants-page">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+      {/* Header simple */}
       <div className="page-header">
-        <div>
-          <h1 className="page-title">👨‍🎓 Gestion des étudiants</h1>
-          <p className="page-subtitle">Gestion complète des ressources humaines (apprenants)</p>
-        </div>
-        <div className="header-actions">
-          <button className="btn-import">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Importer
-          </button>
-          <button className="btn-export">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            Exporter
-          </button>
-          <button className="btn-add" onClick={() => setShowAddModal(true)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Ajouter
-          </button>
-        </div>
+        
+        <button className="btn-add" onClick={() => setShowAddModal(true)}>
+          <i className="fas fa-plus"></i>
+          Nouvel étudiant
+        </button>
       </div>
 
+      {/* Stats cards minimalistes */}
       <div className="stats-cards">
         <div className="stat-card">
-          <div className="stat-icon">👥</div>
-          <div className="stat-info">
-            <div className="stat-value">{students.length}</div>
-            <div className="stat-label">Total étudiants</div>
-          </div>
+          <div className="stat-value">{students.length}</div>
+          <div className="stat-label">Total étudiants</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">🟢</div>
-          <div className="stat-info">
-            <div className="stat-value">{students.filter(s => s.statut === "Actif").length}</div>
-            <div className="stat-label">Actifs</div>
-          </div>
+          <div className="stat-value">{students.filter(s => s.statut === "Actif").length}</div>
+          <div className="stat-label">Actifs</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">🎓</div>
-          <div className="stat-info">
-            <div className="stat-value">{students.filter(s => s.statut === "Diplômé").length}</div>
-            <div className="stat-label">Diplômés</div>
-          </div>
+          <div className="stat-value">{students.filter(s => s.statut === "Diplômé").length}</div>
+          <div className="stat-label">Diplômés</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">📚</div>
-          <div className="stat-info">
-            <div className="stat-value">{niveauxUniques.length}</div>
-            <div className="stat-label">Niveaux</div>
-          </div>
+          <div className="stat-value">{niveauxUniques.length}</div>
+          <div className="stat-label">Niveaux</div>
         </div>
       </div>
 
-      <div className="filters-bar">
+      {/* Barre de recherche et filtres */}
+      <div className="filters-section">
         <div className="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+          <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Rechercher par nom, prénom, ID ou email..."
+            placeholder="Rechercher..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <select className="filter-select" value={selectedNiveau} onChange={(e) => setSelectedNiveau(e.target.value)}>
-          <option value="">Tous les niveaux</option>
-          {niveauxUniques.map(n => <option key={n} value={n}>{n}</option>)}
-        </select>
-        <select className="filter-select" value={selectedFiliere} onChange={(e) => setSelectedFiliere(e.target.value)}>
-          <option value="">Toutes les filières</option>
-          {filieresUniques.map(f => <option key={f} value={f}>{f}</option>)}
-        </select>
-        <select className="filter-select" value={selectedGroupe} onChange={(e) => setSelectedGroupe(e.target.value)}>
-          <option value="">Tous les groupes</option>
-          {groupesUniques.map(g => <option key={g} value={g}>Groupe {g}</option>)}
-        </select>
-        <select className="filter-select" value={selectedStatut} onChange={(e) => setSelectedStatut(e.target.value)}>
-          <option value="">Tous les statuts</option>
-          <option value="Actif">Actif</option>
-          <option value="Suspendu">Suspendu</option>
-          <option value="Diplômé">Diplômé</option>
-        </select>
-        {selectedStudents.length > 0 && (
-          <button className="btn-bulk-delete" onClick={handleBulkDelete}>
-            🗑️ Supprimer ({selectedStudents.length})
-          </button>
-        )}
+        <div className="filters-group">
+          <select className="filter-select" value={selectedNiveau} onChange={(e) => setSelectedNiveau(e.target.value)}>
+            <option value="">Niveaux</option>
+            {niveauxUniques.map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+          <select className="filter-select" value={selectedFiliere} onChange={(e) => setSelectedFiliere(e.target.value)}>
+            <option value="">Filières</option>
+            {filieresUniques.map(f => <option key={f} value={f}>{f}</option>)}
+          </select>
+          <select className="filter-select" value={selectedGroupe} onChange={(e) => setSelectedGroupe(e.target.value)}>
+            <option value="">Groupes</option>
+            {groupesUniques.map(g => <option key={g} value={g}>Groupe {g}</option>)}
+          </select>
+          <select className="filter-select" value={selectedStatut} onChange={(e) => setSelectedStatut(e.target.value)}>
+            <option value="">Statuts</option>
+            <option value="Actif">Actif</option>
+            <option value="Suspendu">Suspendu</option>
+            <option value="Diplômé">Diplômé</option>
+          </select>
+          {selectedStudents.length > 0 && (
+            <button className="btn-bulk-delete" onClick={handleBulkDelete}>
+              <i className="fas fa-trash"></i>
+              {selectedStudents.length}
+            </button>
+          )}
+        </div>
       </div>
 
+      {/* Tableau simple */}
       <div className="students-table-container">
         <table className="students-table">
           <thead>
@@ -289,16 +259,14 @@ export default function EtudiantsPage() {
                   onChange={handleSelectAll}
                 />
               </th>
-              <th>Photo</th>
               <th>ID</th>
               <th>Nom complet</th>
               <th>Niveau</th>
               <th>Filière</th>
               <th>Groupe</th>
               <th>Email</th>
-              <th>Téléphone</th>
               <th>Statut</th>
-              <th>Actions</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -311,46 +279,33 @@ export default function EtudiantsPage() {
                     onChange={() => handleSelectStudent(student.id)}
                   />
                 </td>
-                <td className="photo-cell">
-                  <div className="student-photo">{student.photo}</div>
-                </td>
                 <td className="id-cell">{student.id}</td>
                 <td className="name-cell">
-                  <span className="student-name">{student.prenom} {student.nom}</span>
+                  <div className="student-name">
+                    <span className="initials">{student.prenom[0]}{student.nom[0]}</span>
+                    <span>{student.prenom} {student.nom}</span>
+                  </div>
                 </td>
                 <td>{student.niveau}</td>
                 <td>{student.filiere}</td>
-                <td><span className="groupe-badge">Groupe {student.groupe}</span></td>
-                <td>{student.email}</td>
-                <td>{student.phone}</td>
-                <td>{getStatutBadge(student.statut)}</td>
+                <td className="groupe-cell">Groupe {student.groupe}</td>
+                <td className="email-cell">{student.email}</td>
+                <td className="status-cell">{getStatutBadge(student.statut)}</td>
                 <td className="actions-cell">
-                  <button className="action-btn view" onClick={() => { setSelectedStudent(student); setShowDetailsModal(true); }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="3"/>
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    </svg>
+                  <button className="action-btn" onClick={() => { setSelectedStudent(student); setShowDetailsModal(true); }}>
+                    <i className="fas fa-eye"></i>
                   </button>
-                  <button className="action-btn edit" onClick={() => { setSelectedStudent(student); setShowEditModal(true); }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20.59 13.41l-6.17 6.17a2 2 0 01-1.42.59H5a2 2 0 01-2-2v-8a2 2 0 01.59-1.42l6.17-6.17a2 2 0 012.83 0l7.24 7.24a2 2 0 010 2.83z"/>
-                      <line x1="16.5" y1="9.5" x2="7.5" y2="18.5"/>
-                    </svg>
+                  <button className="action-btn" onClick={() => { setSelectedStudent(student); setShowEditModal(true); }}>
+                    <i className="fas fa-pen"></i>
                   </button>
                   <button className="action-btn delete" onClick={() => handleDeleteStudent(student)}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                    </svg>
+                    <i className="fas fa-trash"></i>
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div className="pagination">
-        <span className="pagination-info">{filteredStudents.length} étudiants affichés</span>
       </div>
 
       {showAddModal && (

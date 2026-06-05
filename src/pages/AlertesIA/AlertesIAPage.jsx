@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from "react";
 import AlertDetailsModal from "./AlertDetailsModal";
-import RealtimeMonitor from "./RealtimeMonitor";
 import "./AlertesIAPage.css";
 
-// Données mockées des alertes IA
+// Données mockées des alertes IA - Version simplifiée
 const generateMockAlerts = () => {
-  const alertTypes = [
-    { type: "regard_suspect", label: "👀 Regard suspect", severity: "high", icon: "👀" },
-    { type: "telephone", label: "📱 Utilisation téléphone", severity: "high", icon: "📱" },
-    { type: "mouvement_brusque", label: "🏃 Mouvement brusque", severity: "medium", icon: "🏃" },
-    { type: "echange_papier", label: "📄 Échange de papier", severity: "critical", icon: "📄" },
-    { type: "casque", label: "🎧 Port de casque", severity: "medium", icon: "🎧" },
-    { type: "parleur", label: "💬 Conversation", severity: "low", icon: "💬" },
-    { type: "caméra_offline", label: "📹 Caméra hors ligne", severity: "critical", icon: "📹" },
-    { type: "absence_prolongee", label: "⏰ Absence prolongée", severity: "medium", icon: "⏰" }
+  const statuses = [
+    { type: "normal", label: "Normal", severity: "low", icon: "fa-check-circle", color: "#10b981" },
+    { type: "suspect", label: "Suspect", severity: "medium", icon: "fa-question-circle", color: "#f59e0b" },
+    { type: "anormal", label: "Anormal", severity: "high", icon: "fa-exclamation-triangle", color: "#ef4444" }
   ];
   
   const salles = ["Salle A101", "Salle A102", "Salle B201", "Salle B202", "Amphithéâtre C"];
@@ -21,38 +15,39 @@ const generateMockAlerts = () => {
     { id: "IIT00001", nom: "Ben Ali", prenom: "Ahmed" },
     { id: "IIT00002", nom: "Touati", prenom: "Sofia" },
     { id: "IIT00003", nom: "Khelil", prenom: "Yassine" },
-    { id: "IIT00004", nom: "Mansouri", prenom: "Nadia" }
+    { id: "IIT00004", nom: "Mansouri", prenom: "Nadia" },
+    { id: "IIT00005", nom: "Saidi", prenom: "Karim" },
+    { id: "IIT00006", nom: "Hamdi", prenom: "Leila" }
   ];
   
   const alerts = [];
   const now = new Date();
   
-  for (let i = 1; i <= 24; i++) {
-    const alertType = alertTypes[i % alertTypes.length];
+  for (let i = 1; i <= 48; i++) {
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
     const salle = salles[i % salles.length];
     const etudiant = etudiants[i % etudiants.length];
     const date = new Date(now);
-    date.setMinutes(now.getMinutes() - i * 3);
+    date.setMinutes(now.getMinutes() - i * 5);
     
     alerts.push({
       id: `ALT${String(i).padStart(4, '0')}`,
-      type: alertType.type,
-      label: alertType.label,
-      severity: alertType.severity,
-      icon: alertType.icon,
+      type: status.type,
+      label: status.label,
+      severity: status.severity,
+      icon: status.icon,
+      color: status.color,
       salle: salle,
-      salleId: i % 5 + 1,
       etudiant: etudiant,
+      seat: `${String.fromCharCode(65 + (i % 6))}${Math.floor(i / 6) + 1}`,
       timestamp: date.toISOString(),
-      description: `Détection d'un comportement suspect: ${alertType.label.toLowerCase()}`,
-      screenshot: i % 3 === 0 ? "screenshot_placeholder.jpg" : null,
-      video: i % 5 === 0 ? "video_placeholder.mp4" : null,
-      status: i < 5 ? "nouvelle" : (i < 10 ? "en_cours" : (i < 15 ? "traitee" : "resolue")),
-      traitement: i % 4 === 0 ? { par: "Admin", action: "Avertissement verbal", date: new Date(now).toISOString() } : null,
-      aiConfidence: Math.floor(Math.random() * 30 + 70),
+      status: i < 10 ? "nouvelle" : (i < 20 ? "en_cours" : (i < 35 ? "traitee" : "resolue")),
+      aiConfidence: status.type === "normal" ? Math.floor(Math.random() * 20 + 80) : 
+                    status.type === "suspect" ? Math.floor(Math.random() * 30 + 50) :
+                    Math.floor(Math.random() * 40 + 60),
       examInfo: {
         matiere: ["Architecture", "Algorithmique", "Réseaux", "IA"][i % 4],
-        date: "2026-03-25",
+        date: "2026-06-10",
         heure: "09:00-12:00"
       }
     });
@@ -65,25 +60,25 @@ export default function AlertesIAPage() {
   const [alerts, setAlerts] = useState([]);
   const [filteredAlerts, setFilteredAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showRealtime, setShowRealtime] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+  
   // Filtres
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSeverity, setSelectedSeverity] = useState("tous");
   const [selectedStatus, setSelectedStatus] = useState("tous");
   const [selectedSalle, setSelectedSalle] = useState("toutes");
   const [selectedType, setSelectedType] = useState("tous");
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   
-  // Statistiques temps réel
+  // Statistiques
   const [stats, setStats] = useState({
     total: 0,
-    critiques: 0,
-    hautes: 0,
-    moyennes: 0,
-    basses: 0,
+    normaux: 0,
+    suspects: 0,
+    anormaux: 0,
     nouvelles: 0,
     enCours: 0,
     traitees: 0,
@@ -91,66 +86,25 @@ export default function AlertesIAPage() {
   });
 
   useEffect(() => {
-    // Simuler chargement des alertes
     setTimeout(() => {
       const mockAlerts = generateMockAlerts();
       setAlerts(mockAlerts);
       updateStats(mockAlerts);
       setLoading(false);
     }, 500);
-    
-    // Simuler des alertes en temps réel toutes les 10 secondes
-    const interval = setInterval(() => {
-      if (showRealtime) {
-        const newAlert = generateSingleAlert();
-        setAlerts(prev => [newAlert, ...prev]);
-        updateStats([newAlert, ...alerts]);
-      }
-    }, 10000);
-    
-    return () => clearInterval(interval);
-  }, [alerts, showRealtime]);
+  }, []);
 
   useEffect(() => {
     filterAlerts();
-  }, [alerts, searchTerm, selectedSeverity, selectedStatus, selectedSalle, selectedType, dateRange]);
-
-  const generateSingleAlert = () => {
-    const alertTypes = [
-      { type: "regard_suspect", label: "👀 Regard suspect", severity: "high", icon: "👀" },
-      { type: "telephone", label: "📱 Utilisation téléphone", severity: "high", icon: "📱" },
-      { type: "mouvement_brusque", label: "🏃 Mouvement brusque", severity: "medium", icon: "🏃" }
-    ];
-    const alertType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
-    const salles = ["Salle A101", "Salle A102", "Salle B201"];
-    const etudiants = [
-      { id: "IIT00001", nom: "Ben Ali", prenom: "Ahmed" },
-      { id: "IIT00002", nom: "Touati", prenom: "Sofia" }
-    ];
-    
-    return {
-      id: `ALT${String(Date.now()).slice(-6)}`,
-      type: alertType.type,
-      label: alertType.label,
-      severity: alertType.severity,
-      icon: alertType.icon,
-      salle: salles[Math.floor(Math.random() * salles.length)],
-      etudiant: etudiants[Math.floor(Math.random() * etudiants.length)],
-      timestamp: new Date().toISOString(),
-      description: `Nouvelle alerte: ${alertType.label.toLowerCase()}`,
-      status: "nouvelle",
-      aiConfidence: Math.floor(Math.random() * 30 + 70),
-      examInfo: { matiere: "Examen en cours", date: new Date().toISOString().split('T')[0], heure: "09:00-12:00" }
-    };
-  };
+    setCurrentPage(1);
+  }, [alerts, searchTerm, selectedStatus, selectedSalle, selectedType]);
 
   const updateStats = (alertsList) => {
     setStats({
       total: alertsList.length,
-      critiques: alertsList.filter(a => a.severity === "critical").length,
-      hautes: alertsList.filter(a => a.severity === "high").length,
-      moyennes: alertsList.filter(a => a.severity === "medium").length,
-      basses: alertsList.filter(a => a.severity === "low").length,
+      normaux: alertsList.filter(a => a.type === "normal").length,
+      suspects: alertsList.filter(a => a.type === "suspect").length,
+      anormaux: alertsList.filter(a => a.type === "anormal").length,
       nouvelles: alertsList.filter(a => a.status === "nouvelle").length,
       enCours: alertsList.filter(a => a.status === "en_cours").length,
       traitees: alertsList.filter(a => a.status === "traitee").length,
@@ -163,74 +117,47 @@ export default function AlertesIAPage() {
     
     if (searchTerm) {
       filtered = filtered.filter(a => 
-        a.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
         a.salle.toLowerCase().includes(searchTerm.toLowerCase()) ||
         a.etudiant.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         a.etudiant.prenom.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
-    if (selectedSeverity !== "tous") {
-      filtered = filtered.filter(a => a.severity === selectedSeverity);
-    }
-    
-    if (selectedStatus !== "tous") {
-      filtered = filtered.filter(a => a.status === selectedStatus);
-    }
-    
-    if (selectedSalle !== "toutes") {
-      filtered = filtered.filter(a => a.salle === selectedSalle);
-    }
-    
-    if (selectedType !== "tous") {
-      filtered = filtered.filter(a => a.type === selectedType);
-    }
-    
-    if (dateRange.start) {
-      filtered = filtered.filter(a => a.timestamp.split('T')[0] >= dateRange.start);
-    }
-    
-    if (dateRange.end) {
-      filtered = filtered.filter(a => a.timestamp.split('T')[0] <= dateRange.end);
-    }
+    if (selectedStatus !== "tous") filtered = filtered.filter(a => a.status === selectedStatus);
+    if (selectedSalle !== "toutes") filtered = filtered.filter(a => a.salle === selectedSalle);
+    if (selectedType !== "tous") filtered = filtered.filter(a => a.type === selectedType);
     
     setFilteredAlerts(filtered);
   };
 
   const handleUpdateStatus = (alertId, newStatus) => {
-    setAlerts(alerts.map(a => 
-      a.id === alertId ? { ...a, status: newStatus } : a
-    ));
+    setAlerts(alerts.map(a => a.id === alertId ? { ...a, status: newStatus } : a));
   };
 
-  const getSeverityColor = (severity) => {
-    switch(severity) {
-      case "critical": return "critical";
-      case "high": return "high";
-      case "medium": return "medium";
-      case "low": return "low";
-      default: return "low";
-    }
-  };
-
-  const getSeverityLabel = (severity) => {
-    switch(severity) {
-      case "critical": return "Critique";
-      case "high": return "Élevée";
-      case "medium": return "Moyenne";
-      case "low": return "Basse";
-      default: return "Inconnue";
-    }
-  };
+  // Pagination
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentAlerts = filteredAlerts.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredAlerts.length / itemsPerPage);
 
   const getStatusLabel = (status) => {
-    switch(status) {
-      case "nouvelle": return "🟡 Nouvelle";
-      case "en_cours": return "🔵 En cours";
-      case "traitee": return "🟢 Traitée";
-      case "resolue": return "✅ Résolue";
-      default: return status;
-    }
+    const labels = {
+      nouvelle: "🟡 Nouvelle",
+      en_cours: "🔵 En cours",
+      traitee: "🟢 Traitée",
+      resolue: "✅ Résolue"
+    };
+    return labels[status] || status;
+  };
+
+  const getStatusClass = (status) => {
+    const classes = {
+      nouvelle: "nouvelle",
+      en_cours: "encours",
+      traitee: "traitee",
+      resolue: "resolue"
+    };
+    return classes[status] || "";
   };
 
   const formatTime = (timestamp) => {
@@ -244,8 +171,16 @@ export default function AlertesIAPage() {
     return date.toLocaleDateString('fr');
   };
 
+  const getTypeClass = (type) => {
+    const classes = {
+      normal: "type-normal",
+      suspect: "type-suspect",
+      anormal: "type-anormal"
+    };
+    return classes[type] || "";
+  };
+
   const sallesUniques = [...new Set(alerts.map(a => a.salle))];
-  const typesUniques = [...new Set(alerts.map(a => a.type))];
 
   if (loading) {
     return (
@@ -258,86 +193,25 @@ export default function AlertesIAPage() {
 
   return (
     <div className="alertes-page">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+      {/* Header */}
       <div className="page-header">
-        <div>
-          <h1 className="page-title">🤖 Alertes IA - Surveillance temps réel</h1>
-          <p className="page-subtitle">Détection automatique des comportements suspects pendant les examens</p>
-        </div>
-        <div className="header-actions">
-          <button className={`btn-realtime ${showRealtime ? "active" : ""}`} onClick={() => setShowRealtime(!showRealtime)}>
-            <span className="pulse-dot"></span>
-            {showRealtime ? "📡 Mode réel actif" : "🎥 Activer mode temps réel"}
-          </button>
-          <button className="btn-export" onClick={() => alert("Export des alertes")}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            Exporter
-          </button>
-        </div>
+        
       </div>
 
-      {/* Statistiques en temps réel */}
-      <div className="stats-cards">
-        <div className="stat-card critical">
-          <div className="stat-icon">🔥</div>
-          <div className="stat-info">
-            <div className="stat-value">{stats.critiques}</div>
-            <div className="stat-label">Critiques</div>
-          </div>
-        </div>
-        <div className="stat-card high">
-          <div className="stat-icon">⚠️</div>
-          <div className="stat-info">
-            <div className="stat-value">{stats.hautes}</div>
-            <div className="stat-label">Élevées</div>
-          </div>
-        </div>
-        <div className="stat-card medium">
-          <div className="stat-icon">📊</div>
-          <div className="stat-info">
-            <div className="stat-value">{stats.moyennes}</div>
-            <div className="stat-label">Moyennes</div>
-          </div>
-        </div>
-        <div className="stat-card low">
-          <div className="stat-icon">ℹ️</div>
-          <div className="stat-info">
-            <div className="stat-value">{stats.basses}</div>
-            <div className="stat-label">Basses</div>
-          </div>
-        </div>
-        <div className="stat-card total">
-          <div className="stat-icon">📋</div>
-          <div className="stat-info">
-            <div className="stat-value">{stats.total}</div>
-            <div className="stat-label">Total alertes</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtres */}
+      
+      {/* Filters */}
       <div className="filters-bar">
         <div className="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input
-            type="text"
-            placeholder="Rechercher par étudiant, salle..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <i className="fas fa-search"></i>
+          <input type="text" placeholder="Rechercher par étudiant, salle..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
-        <select className="filter-select" value={selectedSeverity} onChange={(e) => setSelectedSeverity(e.target.value)}>
-          <option value="tous">Toutes sévérités</option>
-          <option value="critical">Critique</option>
-          <option value="high">Élevée</option>
-          <option value="medium">Moyenne</option>
-          <option value="low">Basse</option>
+        <select className="filter-select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
+          <option value="tous">Tous les types</option>
+          <option value="normal">Normal</option>
+          <option value="suspect">Suspect</option>
+          <option value="anormal">Anormal</option>
         </select>
         <select className="filter-select" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
           <option value="tous">Tous statuts</option>
@@ -350,97 +224,111 @@ export default function AlertesIAPage() {
           <option value="toutes">Toutes salles</option>
           {sallesUniques.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <select className="filter-select" value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-          <option value="tous">Tous types</option>
-          {typesUniques.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <input type="date" className="filter-date" value={dateRange.start} onChange={(e) => setDateRange({...dateRange, start: e.target.value})} placeholder="Date début" />
-        <input type="date" className="filter-date" value={dateRange.end} onChange={(e) => setDateRange({...dateRange, end: e.target.value})} placeholder="Date fin" />
       </div>
 
-      {/* Mode temps réel */}
-      {showRealtime && <RealtimeMonitor onClose={() => setShowRealtime(false)} />}
+      {/* Alerts Table */}
+      <div className="alerts-table-container">
+        <table className="alerts-table">
+          <thead>
+            <tr>
+              <th><i className="fas fa-clock"></i> Date/Heure</th>
+              <th><i className="fas fa-chart-line"></i> Statut IA</th>
+              <th><i className="fas fa-user"></i> Étudiant</th>
+              <th><i className="fas fa-chair"></i> Place</th>
+              <th><i className="fas fa-door-open"></i> Salle</th>
+              <th><i className="fas fa-percent"></i> Confiance</th>
+              <th><i className="fas fa-circle"></i> Traitement</th>
+              <th><i className="fas fa-cogs"></i> Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentAlerts.map(alert => (
+              <tr key={alert.id} className={getTypeClass(alert.type)}>
+                <td className="alert-time">
+                  <div className="time-main">{formatTime(alert.timestamp)}</div>
+                  <div className="time-sub">{new Date(alert.timestamp).toLocaleDateString('fr')}</div>
+                </td>
+                <td>
+                  <span className={`status-badge ${alert.type}`}>
+                    <i className={`fas ${alert.icon}`}></i>
+                    {alert.label}
+                  </span>
+                </td>
+                <td>
+                  <div className="student-info">
+                    <strong>{alert.etudiant.prenom} {alert.etudiant.nom}</strong>
+                    <div className="student-id">{alert.etudiant.id}</div>
+                  </div>
+                </td>
+                <td className="seat-cell">
+                  <span className="seat-badge">{alert.seat}</span>
+                </td>
+                <td>
+                  <div className="room-info">
+                    <div>{alert.salle}</div>
+                    <div className="exam-name">{alert.examInfo?.matiere}</div>
+                  </div>
+                </td>
+                <td>
+                  <div className="confidence-cell">
+                    <div className="confidence-bar">
+                      <div className="confidence-fill" style={{ width: `${alert.aiConfidence}%`, background: alert.color }}></div>
+                    </div>
+                    <span className="confidence-value">{alert.aiConfidence}%</span>
+                  </div>
+                </td>
+                <td>
+                  <select 
+                    value={alert.status} 
+                    onChange={(e) => handleUpdateStatus(alert.id, e.target.value)}
+                    className={`status-select ${getStatusClass(alert.status)}`}
+                  >
+                    <option value="nouvelle">Nouvelle</option>
+                    <option value="en_cours">En cours</option>
+                    <option value="traitee">Traitée</option>
+                    <option value="resolue">Résolue</option>
+                  </select>
+                </td>
+                <td className="actions-cell">
+                  <button className="action-btn view" onClick={() => { setSelectedAlert(alert); setShowDetails(true); }} title="Détails">
+                    <i className="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Liste des alertes */}
-      <div className="alerts-list">
-        <div className="alerts-header">
-          <span>🕒 Date/Heure</span>
-          <span>📊 Sévérité</span>
-          <span>📋 Type d'alerte</span>
-          <span>🎓 Étudiant</span>
-          <span>🏛️ Salle</span>
-          <span>📈 Confiance IA</span>
-          <span>🔧 Statut</span>
-          <span>⚡ Actions</span>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button className="pagination-btn" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+            <i className="fas fa-angle-double-left"></i>
+          </button>
+          <button className="pagination-btn" onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+            <i className="fas fa-chevron-left"></i>
+          </button>
+          <span className="page-indicator">Page {currentPage} / {totalPages}</span>
+          <button className="pagination-btn" onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}>
+            <i className="fas fa-chevron-right"></i>
+          </button>
+          <button className="pagination-btn" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+            <i className="fas fa-angle-double-right"></i>
+          </button>
         </div>
-        
-        {filteredAlerts.map(alert => (
-          <div key={alert.id} className={`alert-item severity-${alert.severity} status-${alert.status}`}>
-            <div className="alert-time">
-              <span className="time">{formatTime(alert.timestamp)}</span>
-              <span className="date">{new Date(alert.timestamp).toLocaleDateString('fr')}</span>
-            </div>
-            <div className="alert-severity">
-              <span className={`severity-badge ${getSeverityColor(alert.severity)}`}>
-                {getSeverityLabel(alert.severity)}
-              </span>
-            </div>
-            <div className="alert-type">
-              <span className="type-icon">{alert.icon}</span>
-              <span className="type-label">{alert.label}</span>
-            </div>
-            <div className="alert-student">
-              <span className="student-name">{alert.etudiant.prenom} {alert.etudiant.nom}</span>
-              <span className="student-id">{alert.etudiant.id}</span>
-            </div>
-            <div className="alert-room">
-              <span className="room-name">{alert.salle}</span>
-              <span className="room-exam">{alert.examInfo?.matiere}</span>
-            </div>
-            <div className="alert-confidence">
-              <div className="confidence-bar">
-                <div className="confidence-fill" style={{ width: `${alert.aiConfidence}%` }}></div>
-              </div>
-              <span className="confidence-value">{alert.aiConfidence}%</span>
-            </div>
-            <div className="alert-status">
-              <select 
-                value={alert.status} 
-                onChange={(e) => handleUpdateStatus(alert.id, e.target.value)}
-                className={`status-select status-${alert.status}`}
-              >
-                <option value="nouvelle">🟡 Nouvelle</option>
-                <option value="en_cours">🔵 En cours</option>
-                <option value="traitee">🟢 Traitée</option>
-                <option value="resolue">✅ Résolue</option>
-              </select>
-            </div>
-            <div className="alert-actions">
-              <button className="action-btn view" onClick={() => { setSelectedAlert(alert); setShowDetails(true); }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                </svg>
-              </button>
-              <button className="action-btn video" onClick={() => alert("Vidéo surveillance")}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="6" width="20" height="12" rx="2"/>
-                  <polygon points="9 9 15 12 9 15 9 9"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      )}
 
+      {/* Empty State */}
       {filteredAlerts.length === 0 && (
         <div className="no-alerts">
-          <div className="no-alerts-icon">✅</div>
+          <i className="fas fa-check-circle"></i>
           <h3>Aucune alerte trouvée</h3>
           <p>Aucune alerte ne correspond à vos critères de recherche</p>
         </div>
       )}
 
+      {/* Modal */}
       {showDetails && selectedAlert && (
         <AlertDetailsModal
           alert={selectedAlert}

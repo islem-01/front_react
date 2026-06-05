@@ -16,14 +16,14 @@ const generateMockTeachers = () => {
   const noms = ["Ben Ali", "Mansouri", "Touati", "Khelil", "Marzouk", "Saidi", "Jaouadi", "Zahra", "Salah", "Trabelsi"];
   
   const teachers = [];
-  for (let i = 1; i <= 24; i++) {
+  for (let i = 1; i <= 48; i++) {
     const grade = grades[Math.floor(Math.random() * grades.length)];
     const filiere = filieres[Math.floor(Math.random() * filieres.length)];
     teachers.push({
       id: `PROF${String(i).padStart(4, '0')}`,
       prenom: prenoms[i % prenoms.length],
       nom: noms[i % noms.length],
-      photo: i % 2 === 0 ? "👩‍🏫" : "👨‍🏫",
+      photo: null,
       grade: grade,
       filiere: filiere,
       specialites: [filiere, filieres[(i + 1) % filieres.length]].slice(0, 2),
@@ -64,10 +64,16 @@ export default function EnseignantsPage() {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     setTimeout(() => {
-      setTeachers(generateMockTeachers());
+      const mockTeachers = generateMockTeachers();
+      setTeachers(mockTeachers);
       setLoading(false);
     }, 500);
   }, []);
@@ -75,6 +81,11 @@ export default function EnseignantsPage() {
   useEffect(() => {
     filterTeachers();
   }, [teachers, searchTerm, selectedGrade, selectedFiliere, selectedStatut]);
+
+  useEffect(() => {
+    setTotalPages(Math.ceil(filteredTeachers.length / itemsPerPage));
+    setCurrentPage(1);
+  }, [filteredTeachers, itemsPerPage]);
 
   const filterTeachers = () => {
     let filtered = [...teachers];
@@ -103,6 +114,15 @@ export default function EnseignantsPage() {
     
     setFilteredTeachers(filtered);
   };
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTeachers = filteredTeachers.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
 
   const handleAddTeacher = (newTeacher) => {
     const teacherWithId = {
@@ -142,7 +162,7 @@ export default function EnseignantsPage() {
     if (selectAll) {
       setSelectedTeachers([]);
     } else {
-      setSelectedTeachers(filteredTeachers.map(t => t.id));
+      setSelectedTeachers(currentTeachers.map(t => t.id));
     }
     setSelectAll(!selectAll);
   };
@@ -161,19 +181,19 @@ export default function EnseignantsPage() {
 
   const getStatutBadge = (statut) => {
     switch(statut) {
-      case "Permanent": return <span className="statut-badge permanent">✅ Permanent</span>;
-      case "Contractuel": return <span className="statut-badge contractuel">📝 Contractuel</span>;
-      case "Vacataire": return <span className="statut-badge vacataire">⏳ Vacataire</span>;
-      case "Chercheur": return <span className="statut-badge chercheur">🔬 Chercheur</span>;
+      case "Permanent": return <span className="statut-badge permanent">Permanent</span>;
+      case "Contractuel": return <span className="statut-badge contractuel">Contractuel</span>;
+      case "Vacataire": return <span className="statut-badge vacataire">Vacataire</span>;
+      case "Chercheur": return <span className="statut-badge chercheur">Chercheur</span>;
       default: return <span className="statut-badge">{statut}</span>;
     }
   };
 
   const getGradeBadge = (grade) => {
     switch(grade) {
-      case "Professeur": return <span className="grade-badge professeur">👨‍🏫 Professeur</span>;
-      case "Maître de conférences": return <span className="grade-badge maitre">📖 MCF</span>;
-      case "Maître assistant": return <span className="grade-badge assistant">📚 MA</span>;
+      case "Professeur": return <span className="grade-badge professeur">Professeur</span>;
+      case "Maître de conférences": return <span className="grade-badge maitre">M. Conférences</span>;
+      case "Maître assistant": return <span className="grade-badge assistant">M. Assistant</span>;
       default: return <span className="grade-badge">{grade}</span>;
     }
   };
@@ -189,62 +209,53 @@ export default function EnseignantsPage() {
 
   return (
     <div className="enseignants-page">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+      {/* Header */}
       <div className="page-header">
-        <div>
-          <h1 className="page-title">👨‍🏫 Gestion des enseignants</h1>
-          <p className="page-subtitle">Gestion complète des ressources humaines (encadrants)</p>
-        </div>
+        
         <div className="header-actions">
-          <button className="btn-import">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Importer
-          </button>
-          <button className="btn-export">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-            Exporter
-          </button>
+          
           <button className="btn-add" onClick={() => setShowAddModal(true)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+            <i className="fas fa-plus"></i>
             Ajouter
           </button>
         </div>
       </div>
 
+      {/* Stats Cards */}
       <div className="stats-cards">
         <div className="stat-card">
-          <div className="stat-icon">👨‍🏫</div>
+          <div className="stat-icon blue">
+            <i className="fas fa-chalkboard-user"></i>
+          </div>
           <div className="stat-info">
             <div className="stat-value">{teachers.length}</div>
             <div className="stat-label">Total enseignants</div>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon green">
+            <i className="fas fa-user-check"></i>
+          </div>
           <div className="stat-info">
             <div className="stat-value">{teachers.filter(t => t.statut === "Permanent").length}</div>
             <div className="stat-label">Permanents</div>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">🎓</div>
+          <div className="stat-icon purple">
+            <i className="fas fa-clipboard-list"></i>
+          </div>
           <div className="stat-info">
             <div className="stat-value">{teachers.reduce((sum, t) => sum + t.examensSupervises, 0)}</div>
             <div className="stat-label">Examens supervisés</div>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">📚</div>
+          <div className="stat-icon orange">
+            <i className="fas fa-book"></i>
+          </div>
           <div className="stat-info">
             <div className="stat-value">{new Set(teachers.map(t => t.filiere)).size}</div>
             <div className="stat-label">Filières</div>
@@ -252,15 +263,13 @@ export default function EnseignantsPage() {
         </div>
       </div>
 
+      {/* Filters Bar */}
       <div className="filters-bar">
         <div className="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+          <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Rechercher par nom, prénom, ID, email ou filière..."
+            placeholder="Rechercher par nom, prénom, ID, email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -279,16 +288,41 @@ export default function EnseignantsPage() {
         </select>
         {selectedTeachers.length > 0 && (
           <button className="btn-bulk-delete" onClick={handleBulkDelete}>
-            🗑️ Supprimer ({selectedTeachers.length})
+            <i className="fas fa-trash-alt"></i>
+            Supprimer ({selectedTeachers.length})
           </button>
         )}
       </div>
 
+      {/* Selection Bar */}
+      {currentTeachers.length > 0 && (
+        <div className="selection-bar">
+          <label className="select-all">
+            <input
+              type="checkbox"
+              checked={selectAll && currentTeachers.length > 0}
+              onChange={handleSelectAll}
+            />
+            <span>Sélectionner tout</span>
+          </label>
+          <span className="selection-count">{filteredTeachers.length} enseignant(s) au total</span>
+        </div>
+      )}
+
+      {/* Teachers Grid */}
       <div className="teachers-grid">
-        {filteredTeachers.map(teacher => (
+        {currentTeachers.map(teacher => (
           <div key={teacher.id} className={`teacher-card ${selectedTeachers.includes(teacher.id) ? 'selected' : ''}`}>
             <div className="teacher-card-header">
-              <div className="teacher-photo">{teacher.photo}</div>
+              <div className="teacher-photo">
+                {teacher.photo ? (
+                  <img src={teacher.photo} alt={`${teacher.prenom} ${teacher.nom}`} />
+                ) : (
+                  <div className="photo-placeholder">
+                    <i className="fas fa-chalkboard-user"></i>
+                  </div>
+                )}
+              </div>
               <div className="teacher-info">
                 <h3 className="teacher-name">{teacher.prenom} {teacher.nom}</h3>
                 <p className="teacher-id">{teacher.id}</p>
@@ -306,19 +340,19 @@ export default function EnseignantsPage() {
             </div>
             <div className="teacher-details">
               <div className="detail-item">
-                <span className="detail-icon">📚</span>
+                <i className="fas fa-graduation-cap"></i>
                 <span>{teacher.filiere}</span>
               </div>
               <div className="detail-item">
-                <span className="detail-icon">📧</span>
+                <i className="fas fa-envelope"></i>
                 <span>{teacher.email}</span>
               </div>
               <div className="detail-item">
-                <span className="detail-icon">📞</span>
+                <i className="fas fa-phone"></i>
                 <span>{teacher.phone}</span>
               </div>
               <div className="detail-item">
-                <span className="detail-icon">🏢</span>
+                <i className="fas fa-building"></i>
                 <span>Bureau {teacher.bureau}</span>
               </div>
             </div>
@@ -343,23 +377,15 @@ export default function EnseignantsPage() {
             </div>
             <div className="teacher-actions">
               <button className="action-btn view" onClick={() => { setSelectedTeacher(teacher); setShowDetailsModal(true); }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                </svg>
+                <i className="fas fa-eye"></i>
                 Détails
               </button>
               <button className="action-btn edit" onClick={() => { setSelectedTeacher(teacher); setShowEditModal(true); }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20.59 13.41l-6.17 6.17a2 2 0 01-1.42.59H5a2 2 0 01-2-2v-8a2 2 0 01.59-1.42l6.17-6.17a2 2 0 012.83 0l7.24 7.24a2 2 0 010 2.83z"/>
-                  <line x1="16.5" y1="9.5" x2="7.5" y2="18.5"/>
-                </svg>
+                <i className="fas fa-edit"></i>
                 Modifier
               </button>
               <button className="action-btn delete" onClick={() => handleDeleteTeacher(teacher)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                </svg>
+                <i className="fas fa-trash-alt"></i>
                 Supprimer
               </button>
             </div>
@@ -367,6 +393,51 @@ export default function EnseignantsPage() {
         ))}
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button onClick={prevPage} disabled={currentPage === 1} className="pagination-btn">
+            <i className="fas fa-chevron-left"></i>
+          </button>
+          <div className="pagination-pages">
+            {[...Array(totalPages)].map((_, index) => {
+              const pageNumber = index + 1;
+              if (
+                pageNumber === 1 ||
+                pageNumber === totalPages ||
+                (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => paginate(pageNumber)}
+                    className={`pagination-page ${currentPage === pageNumber ? 'active' : ''}`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              } else if (
+                pageNumber === currentPage - 2 ||
+                pageNumber === currentPage + 2
+              ) {
+                return <span key={pageNumber} className="pagination-dots">...</span>;
+              }
+              return null;
+            })}
+          </div>
+          <button onClick={nextPage} disabled={currentPage === totalPages} className="pagination-btn">
+            <i className="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      )}
+
+      {/* Pagination Info */}
+      <div className="pagination-info">
+        <i className="fas fa-users"></i>
+        Affichage de {indexOfFirstItem + 1} à {Math.min(indexOfLastItem, filteredTeachers.length)} sur {filteredTeachers.length} enseignant(s)
+      </div>
+
+      {/* Modals */}
       {showAddModal && (
         <AddTeacherModal
           onAdd={handleAddTeacher}
