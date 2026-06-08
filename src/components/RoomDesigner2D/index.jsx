@@ -21,15 +21,6 @@ const DEPTH_ROWS = {
   4: { scale: 0.76, yOffset: 68 },
   5: { scale: 0.68, yOffset: 85 }
 };
-// Ajoute cette fonction dans le composant RoomDesigner2D
-const getSeatLayout = () => {
-  return {
-    roomId: room.id,
-    seats: seats,  // les sièges générés
-    furniture: furniture,  // le mobilier placé
-    capacity: totalSeats
-  };
-};
 
 export default function RoomDesigner2D({ room, onSave, onClose }) {
   const [objects, setObjects] = useState([]);
@@ -51,35 +42,93 @@ export default function RoomDesigner2D({ room, onSave, onClose }) {
     };
   };
 
-  // Charger les objets sauvegardés - 8 tables pour capacité 16
+  // Générer le layout des sièges à partir des objets
+  const generateSeatLayoutFromObjects = () => {
+    const seats = [];
+    let seatCounter = 1;
+    const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+    
+    objects.forEach(obj => {
+      if (obj.type === 'table4') {
+        // Table 4 places : 2 sièges (un à gauche, un à droite)
+        for (let i = 0; i < 2; i++) {
+          const rowLetter = rows[Math.floor((seatCounter - 1) / 4)];
+          const seatNumber = ((seatCounter - 1) % 4) + 1;
+          seats.push({
+            id: `${rowLetter}${seatNumber}`,
+            position: { row: rowLetter, col: seatNumber },
+            x: obj.x + (i === 0 ? -30 : obj.width + 30),
+            y: obj.y + obj.height / 2,
+            occupied: false
+          });
+          seatCounter++;
+        }
+      } else if (obj.type === 'tableindi') {
+        const rowLetter = rows[Math.floor((seatCounter - 1) / 4)];
+        const seatNumber = ((seatCounter - 1) % 4) + 1;
+        seats.push({
+          id: `${rowLetter}${seatNumber}`,
+          position: { row: rowLetter, col: seatNumber },
+          x: obj.x + obj.width / 2,
+          y: obj.y + obj.height / 2,
+          occupied: false
+        });
+        seatCounter++;
+      }
+    });
+    
+    const cols = Math.ceil(Math.sqrt(seats.length));
+    const rowsCount = Math.ceil(seats.length / cols);
+    
+    return {
+      seats: seats,
+      cols: cols,
+      rows: rowsCount,
+      capacity: seats.length,
+      generatedAt: new Date().toISOString()
+    };
+  };
+
+  // Charger les objets sauvegardés
   useEffect(() => {
     const saved = localStorage.getItem(`room2d_${room.id}`);
     if (saved) {
       setObjects(JSON.parse(saved));
     } else {
       setObjects([
-        // Rangée 1
         { id: 'table4_1', type: 'table4', name: 'Table 4 places', x: 180, y: 350, width: 350, height: 260, rotation: 0, depthRow: 1 },
         { id: 'table4_2', type: 'table4', name: 'Table 4 places', x: 580, y: 350, width: 350, height: 260, rotation: 0, depthRow: 1 },
-        // Rangée 2
         { id: 'table4_3', type: 'table4', name: 'Table 4 places', x: 180, y: 530, width: 350, height: 260, rotation: 0, depthRow: 2 },
         { id: 'table4_4', type: 'table4', name: 'Table 4 places', x: 580, y: 530, width: 350, height: 260, rotation: 0, depthRow: 2 },
-        // Rangée 3
         { id: 'table4_5', type: 'table4', name: 'Table 4 places', x: 180, y: 710, width: 350, height: 260, rotation: 0, depthRow: 3 },
         { id: 'table4_6', type: 'table4', name: 'Table 4 places', x: 580, y: 710, width: 350, height: 260, rotation: 0, depthRow: 3 },
-        // Rangée 4
         { id: 'table4_7', type: 'table4', name: 'Table 4 places', x: 180, y: 890, width: 350, height: 260, rotation: 0, depthRow: 4 },
         { id: 'table4_8', type: 'table4', name: 'Table 4 places', x: 580, y: 890, width: 350, height: 260, rotation: 0, depthRow: 4 },
-        // Bureau enseignant
         { id: 'teacher_1', type: 'teacher', name: 'Bureau enseignant', x: 450, y: 100, width: 400, height: 300, rotation: 0, depthRow: 5 }
       ]);
     }
   }, [room.id]);
 
-  // Calcul des statistiques - 8 tables × 2 = 16 étudiants
+  // Calcul des statistiques
   const tablesCount = objects.filter(o => o.type === 'table4').length;
   const indiCount = objects.filter(o => o.type === 'tableindi').length;
   const totalSeats = (tablesCount * 2) + indiCount;
+
+  // Supprimer un objet
+  const handleDeleteSelected = () => {
+    if (selectedObjectId && window.confirm('Supprimer cet objet ?')) {
+      setObjects(objects.filter(obj => obj.id !== selectedObjectId));
+      setSelectedObjectId(null);
+    }
+  };
+
+  // Vider la salle
+  const handleClear = () => {
+    if (window.confirm('Vider toute la salle ?')) {
+      setObjects([]);
+      setSelectedObjectId(null);
+    }
+  };
 
   // Démarrer le drag
   const handleMouseDown = (e, obj) => {
@@ -193,7 +242,6 @@ export default function RoomDesigner2D({ room, onSave, onClose }) {
     }]);
   };
 
-
   const handleRotateButton = () => {
     if (selectedObjectId) {
       setObjects(objects.map(obj =>
@@ -243,25 +291,24 @@ export default function RoomDesigner2D({ room, onSave, onClose }) {
     }
   };
 
-
-
-// Dans handleSave du RoomDesigner2D
-const handleSave = () => {
-  const layout = {
-    seats: seats,
-    furniture: furniture,
-    capacity: totalSeats,
-    tablesCount: tablesCount,
-    chairsCount: chairsCount
+  // Sauvegarder
+  const handleSave = () => {
+    const seatLayout = generateSeatLayoutFromObjects();
+    
+    const updatedRoom = { 
+      ...room, 
+      seatLayout: seatLayout,
+      planConfigured: true,
+      mobilier: objects,
+      tablesCount: tablesCount,
+      chaisesCount: (tablesCount * 2) + indiCount
+    };
+    
+    localStorage.setItem(`room_layout_${room.id}`, JSON.stringify(seatLayout));
+    localStorage.setItem(`room_objects_${room.id}`, JSON.stringify(objects));
+    
+    onSave(updatedRoom);
   };
-  
-  const updatedRoom = { 
-    ...room, 
-    seatLayout: layout,  // ← Sauvegarde la disposition
-    planConfigured: true 
-  };
-  onSave(updatedRoom);
-};
 
   const selectedObject = objects.find(obj => obj.id === selectedObjectId);
 
