@@ -1,0 +1,667 @@
+/* TeacherLayout.css - Design avec sidebar dégradé bleu */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.teacher-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ============================================
+   SIDEBAR - Design dégradé bleu
+   ============================================ */
+.sidebar {
+  width: 165px;
+  min-width: 165px;
+  height: 100vh;
+  background: linear-gradient(175deg, #1a3898 0%, #1533801a 40%, #0d2370 70%, #091852 100%);
+  background: linear-gradient(180deg, #1c3fa0 0%, #162f85 35%, #0e2262 70%, #091852 100%);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* Dot-grid texture overlay */
+.sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+/* Radial glow top */
+.sidebar::after {
+  content: "";
+  position: absolute;
+  top: -60px;
+  left: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(90,140,255,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Brand header */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 1.1rem 1rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.sidebar-brand-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+.sidebar-brand-sub {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.65);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.6rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar-nav::-webkit-scrollbar { width: 3px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.62rem 1rem;
+  margin: 0.05rem 0.5rem;
+  border-radius: 9px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.72);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.18s ease, color 0.18s ease;
+  text-decoration: none;
+  user-select: none;
+  position: relative;
+}
+
+.nav-item i {
+  width: 17px;
+  font-size: 14px;
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: opacity 0.18s;
+  color: rgba(255,255,255,0.85);
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: #ffffff;
+}
+
+.nav-item:hover i {
+  opacity: 1;
+}
+
+.nav-item.active {
+  background: rgba(255,255,255,0.18);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.nav-item.active i {
+  opacity: 1;
+}
+
+/* Active left accent bar */
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: -0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: rgba(255,255,255,0.7);
+  border-radius: 2px;
+}
+
+/* Institute card */
+.sidebar-institute {
+  margin: 0.75rem 0.6rem;
+  padding: 0.85rem 0.9rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.sidebar-institute-bg {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  opacity: 0.12;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar-institute-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.institute-icon {
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.institute-icon i {
+  width: 15px;
+  height: 15px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.institute-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.institute-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.institute-full {
+  font-size: 0.66rem;
+  color: rgba(255,255,255,0.6);
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* Logout */
+.sidebar-logout {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 0.6rem 0.5rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.58rem 1rem;
+  border-radius: 9px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.6);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
+  text-align: left;
+}
+
+.logout-btn i {
+  width: 17px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #ffffff;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.teacher-main {
+  margin-left: 165px;
+  flex: 1;
+  min-height: 100vh;
+  background: #f5f7fc;
+}
+
+.main-header {
+  background: white;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #eef2f6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-title h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.header-title p {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.header-date {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.header-date i {
+  color: #94a3b8;
+  margin-right: 0.25rem;
+}
+
+.main-content {
+  padding: 1.5rem 2rem;
+}
+
+/* ============================================
+   STATS CARDS
+   ============================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #eef2f6;
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon.blue { background: #eef2ff; color: #4f46e5; }
+.stat-icon.green { background: #ecfdf5; color: #10b981; }
+.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+.stat-icon.purple { background: #f5f3ff; color: #8b5cf6; }
+.stat-icon.red { background: #fef2f2; color: #ef4444; }
+
+.stat-icon i {
+  font-size: 1.25rem;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.stat-link {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.stat-link:hover {
+  color: #4f46e5;
+}
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+.dashboard-section {
+  background: white;
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #eef2f6;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.section-header h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-header h3 i {
+  color: #4f46e5;
+}
+
+.section-link {
+  font-size: 0.7rem;
+  color: #4f46e5;
+  cursor: pointer;
+}
+
+/* ============================================
+   LIVE CARD
+   ============================================ */
+.live-card {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: white;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ef4444;
+  padding: 0.2rem 0.7rem;
+  border-radius: 30px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.live-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.live-stat {
+  text-align: center;
+}
+
+.live-stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.live-stat-label {
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+/* ============================================
+   TABLE
+   ============================================ */
+.exams-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.exams-table th {
+  text-align: left;
+  padding: 0.7rem 0.5rem;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.exams-table td {
+  padding: 0.7rem 0.5rem;
+  color: #374151;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.exams-table tr:hover td {
+  background: #fafbfc;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 30px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.status-badge.accepted {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.status-badge.pending {
+  background: #fffbeb;
+  color: #f59e0b;
+}
+
+.status-badge.done {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 480px;
+  max-width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.modal-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.modal-header h3 i {
+  color: #4f46e5;
+  margin-right: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.25rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #eef2f6;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    z-index: 200;
+    transition: transform 0.3s;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .teacher-main {
+    margin-left: 0;
+  }
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .live-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .live-stats {
+    width: 100%;
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 1rem;
+  }
+  .dashboard-section {
+    padding: 1rem;
+  }
+  .exams-table {
+    font-size: 0.7rem;
+  }
+  .exams-table th,
+  .exams-table td {
+    padding: 0.5rem 0.25rem;
+  }
+}

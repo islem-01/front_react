@@ -215,6 +215,41 @@
   width: 14px;
   height: 14px;
 }
+.filter-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #edf1f7;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.8rem;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-select:hover {
+  border-color: #2563eb;
+}
+
+.date-time {
+  text-align: right;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #edf1f7;
+  min-width: 140px;
+}
+
+.date-time .date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.date-time .time {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2563eb;
+  font-family: monospace;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -226,3 +261,4 @@
     gap: 0.5rem;
   }
 }
+

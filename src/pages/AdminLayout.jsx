@@ -9,6 +9,7 @@ import AlertesIAPage from './AlertesIA/AlertesIAPage';
 import RapportsPage from './Rapports/RapportsPage';
 import SallesPage from './Salles/SallesPage';
 import ParametresPage from './Parametres/ParametresPage';
+import AffectationPlaces from './AffectationPlaces/AffectationPlaces'; // Ajout
 import './AdminLayout.css';
 
 export default function AdminLayout({ user, onLogout }) {
@@ -21,6 +22,7 @@ export default function AdminLayout({ user, onLogout }) {
       case 'enseignants': return <EnseignantsPage />;
       case 'examens': return <ExamensPage />;
       case 'salles': return <SallesPage />;
+      case 'affectation': return <AffectationPlaces />; // Ajout
       case 'alertes': return <AlertesIAPage />;
       case 'rapports': return <RapportsPage />;
       case 'parametres': return <ParametresPage />;

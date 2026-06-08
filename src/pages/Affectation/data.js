@@ -99,32 +99,32 @@ export const ROOMS = (() => {
 
   // S1.01 — petite salle 4×7=28 places
   const r1 = buildRoomDesks(5, 7, 0, 0, ["0-0"]);
-  list.push({ id: "S1.01", name: "Salle S1.01", floor: "Rez-de-chaussée", rows: 5, cols: 7, ...r1,
+  list.push({ id: "S1.01", name: "Salle S1.01", floor: "1 er étage", rows: 5, cols: 7, ...r1,
     equipement: ["Tableau blanc","Climatisation"], color: "#dbeafe" });
 
   // S1.05 — salle standard 5×8=40 places
   const r2 = buildRoomDesks(6, 8, 0, 0, ["0-0","0-1"]);
-  list.push({ id: "S1.05", name: "Salle S1.05", floor: "Rez-de-chaussée", rows: 6, cols: 8, ...r2,
+  list.push({ id: "S1.05", name: "Salle S1.05", floor: "1 er étage", rows: 6, cols: 8, ...r2,
     equipement: ["Projecteur","Tableau blanc","Climatisation"], color: "#dcfce7" });
 
   // S2.08 — salle moyenne 6×7=42 places
   const r3 = buildRoomDesks(7, 7, 0, 0, ["0-0"]);
-  list.push({ id: "S2.08", name: "Salle S2.08", floor: "Étage 2", rows: 7, cols: 7, ...r3,
+  list.push({ id: "S2.08", name: "Salle S2.08", floor: "2ème étage", rows: 7, cols: 7, ...r3,
     equipement: ["Projecteur","Tableau blanc","Climatisation","WiFi"], color: "#fef9c3" });
 
   // S2.12 — salle moyenne
   const r4 = buildRoomDesks(6, 8, 0, 0, ["0-0"]);
-  list.push({ id: "S2.12", name: "Salle S2.12", floor: "Étage 2", rows: 6, cols: 8, ...r4,
+  list.push({ id: "S2.12", name: "Salle S2.12", floor: "2ème étage", rows: 6, cols: 8, ...r4,
     equipement: ["Tableau blanc","Climatisation"], color: "#fce7f3" });
 
   // S3.11 — grande salle 7×9=63 places
   const r5 = buildRoomDesks(8, 9, 0, 0, ["0-0","0-1"]);
-  list.push({ id: "S3.11", name: "Salle S3.11", floor: "Étage 3", rows: 8, cols: 9, ...r5,
+  list.push({ id: "S3.11", name: "Salle S3.11", floor: "3ème étage", rows: 8, cols: 9, ...r5,
     equipement: ["Projecteur","Tableau blanc","Climatisation","WiFi"], color: "#ede9fe" });
 
   // Amphithéâtre A — grand amphi 10×12=120 places
   const r6 = buildRoomDesks(10, 12, 0, 5, ["0-4","0-6"]);
-  list.push({ id: "AmpA", name: "Amphithéâtre A", floor: "Rez-de-chaussée", rows: 10, cols: 12, ...r6,
+  list.push({ id: "AmpA", name: "Amphithéâtre A", floor: "4ème étage", rows: 10, cols: 12, ...r6,
     equipement: ["Scène","Projecteur","Sonorisation","Climatisation"], color: "#fee2e2" });
 
   return list;

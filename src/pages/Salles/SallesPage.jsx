@@ -1,205 +1,270 @@
-import React, { useState } from "react";
-import RoomEditor3D from "./RoomEditor3D";
+// SallesPage.jsx - Gestion des salles uniquement
+import React, { useState, useEffect } from "react";
+import RoomDesigner2D from '../../components/RoomDesigner2D';
 import "./SallesPage.css";
 
-/* ── Mock data ── */
-const initialRooms = [
-  {
-    id: 1, name: "Salle S3.11", floor: "Étage 3",
-    physicalCapacity: 30, examCapacity: 30, tables: 6,
-    exam: "Algorithmique & Programmation", status: "en-cours",
-    time: "09:00 – 12:00", live: true,
-    niveau: "L1", specialite: "Génie Logiciel",
-    groupes: ["Groupe A", "Groupe B"],
-    enseignant: "Prof. Kamel Mansouri",
-    placedCount: 28, aiEngine: "ResNet50",
-    camera: "IIT-Etage3-S3.11-EXT2",
-  },
-  {
-    id: 2, name: "Salle S2.08", floor: "Étage 2",
-    physicalCapacity: 40, examCapacity: 40, tables: 7,
-    exam: "Réseaux Informatiques", status: "termine",
-    time: "14:00 – 17:00", live: false,
-    niveau: "L2", specialite: "Réseaux & Sécurité",
-    groupes: ["Groupe A"],
-    enseignant: "Prof. Salma Bouaziz",
-    placedCount: 35, aiEngine: "ResNet50",
-    camera: "IIT-Etage2-S2.08-EXT1",
-  },
-  {
-    id: 3, name: "Salle S1.04", floor: "Étage 1",
-    physicalCapacity: 25, examCapacity: 25, tables: 5,
-    exam: "Base de données", status: "programme",
-    time: "09:00 – 11:00", live: false,
-    niveau: "L3", specialite: "Génie Logiciel",
-    groupes: ["Groupe A"],
-    enseignant: "Dr. Ines Trabelsi",
-    placedCount: 0, aiEngine: "ResNet50",
-    camera: "IIT-Etage1-S1.04-EXT1",
-  },
-];
+// Générer 48 salles : 4 étages × 12 salles
+// Générer 48 salles : 4 étages × 12 salles
+const generateMockRooms = () => {
+  const rooms = [];
+  const etages = ["1er étage", "2ème étage", "3ème étage", "4ème étage"];
+  
+  for (let e = 0; e < etages.length; e++) {
+    for (let s = 1; s <= 12; s++) {
+      const capacite = Math.floor(Math.random() * (22 - 16 + 1)) + 16;
+      const numSalle = s < 10 ? `0${s}` : `${s}`;
+      
+      rooms.push({
+        id: `E${e + 1}_S${numSalle}`,
+        name: `Salle ${numSalle}`,
+        etage: etages[e],
+        description: "",
+        capacite: capacite,
+        places: capacite,
+        camera: null,
+        planConfigured: false,
+        tablesCount: 0,
+        chaisesCount: capacite,
+        createdAt: new Date().toISOString().split('T')[0],
+        mobilier: null,
+        cameraConfig: null
+      });
+    }
+  }
+  
+  return rooms;
+};
 
-function StatusBadge({ status }) {
-  if (status === "en-cours") return (
-    <span className="status-badge live">
-      <span className="live-dot"></span>
-      En direct
-    </span>
-  );
-  if (status === "termine") return <span className="status-badge done">Terminé</span>;
-  return <span className="status-badge scheduled">Programmé</span>;
-}
-
-function RoomCard({ room, onEdit, onDelete }) {
-  const occupancyRate = Math.round((room.placedCount / room.physicalCapacity) * 100);
-
+// Composant Carte Salle
+function RoomCard({ room, onEdit, onOpenDesigner, onDelete }) {
   return (
-    <div className={`room-card ${room.status === "en-cours" ? "live" : ""}`}>
-      {/* Header */}
-      <div className="card-header">
-        <div className="room-info">
-          <div className="room-icon">
-            <i className="fas fa-door-open"></i>
-          </div>
-          <div>
-            <h3 className="room-name">{room.name}</h3>
-            <p className="room-location">{room.floor} · IIT Tunis</p>
-          </div>
-        </div>
-        <StatusBadge status={room.status} />
+    <div className="room-card">
+      <div className="card-icon">
+        <i className="fas fa-door-open"></i>
       </div>
-
-      {/* AI Status */}
-      <div className="ai-status">
-        <div className={`ai-indicator ${room.live ? "active" : "idle"}`}>
-          <i className="fas fa-microchip"></i>
-          <span>{room.live ? "Surveillance active" : "En veille"}</span>
-        </div>
-        <span className="camera-ref">
-          <i className="fas fa-video"></i> {room.camera}
-        </span>
-      </div>
-
-      {/* Exam Details */}
-      <div className="exam-details">
-        <div className="detail-row">
-          <i className="fas fa-book-open"></i>
-          <span className="detail-label">Examen:</span>
-          <strong>{room.exam}</strong>
-        </div>
-        <div className="detail-row">
-          <i className="fas fa-graduation-cap"></i>
-          <span className="detail-label">Filière:</span>
-          <span>{room.niveau} · {room.specialite}</span>
-        </div>
-        <div className="detail-row">
-          <i className="fas fa-chalkboard-user"></i>
-          <span className="detail-label">Enseignant:</span>
-          <span>{room.enseignant}</span>
-        </div>
-        <div className="detail-row">
-          <i className="fas fa-users"></i>
-          <span className="detail-label">Groupes:</span>
-          <span>{room.groupes.join(", ")}</span>
-        </div>
-        {room.live && (
-          <div className="detail-row">
-            <i className="fas fa-clock"></i>
-            <span className="detail-label">Horaire:</span>
-            <span className="live-time">{room.time}</span>
+      
+      <div className="card-content">
+        <h3 className="room-name">{room.name}</h3>
+        <div className="room-details">
+          <div className="detail">
+            <i className="fas fa-building"></i>
+            <span>{room.etage}</span>
           </div>
+          <div className="detail">
+            <i className="fas fa-chair"></i>
+            <span>{room.capacite} places</span>
+          </div>
+          <div className="detail">
+            <i className="fas fa-video"></i>
+            <span>{room.camera || "Aucune caméra"}</span>
+          </div>
+          <div className="detail">
+            <i className="fas fa-calendar-alt"></i>
+            <span>Créée le {room.createdAt}</span>
+          </div>
+        </div>
+        
+        <div className={`plan-status ${room.planConfigured ? "configured" : "not-configured"}`}>
+          <i className={`fas ${room.planConfigured ? "fa-check-circle" : "fa-times-circle"}`}></i>
+          {room.planConfigured ? "Plan configuré" : "Plan non configuré"}
+        </div>
+        
+        {room.description && (
+          <p className="room-description">{room.description}</p>
         )}
       </div>
-
-      {/* Occupancy */}
-      <div className="occupancy-section">
-        <div className="occupancy-header">
-          <span className="occupancy-label">Occupation</span>
-          <span className="occupancy-value">{room.placedCount} / {room.physicalCapacity} places</span>
-        </div>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill"
-            style={{ 
-              width: `${occupancyRate}%`,
-              background: occupancyRate > 80 ? "#10b981" : occupancyRate > 40 ? "#f59e0b" : "#3b82f6"
-            }}
-          />
-        </div>
-        <div className="occupancy-percentage">{occupancyRate}%</div>
-      </div>
-
-      {/* Tags */}
-      <div className="room-tags">
-        <span className="tag"><i className="fas fa-chair"></i> {room.tables} tables</span>
-        <span className="tag"><i className="fas fa-users"></i> {room.physicalCapacity} places</span>
-        <span className="tag"><i className="fas fa-layer-group"></i> {room.niveau}</span>
-      </div>
-
-      {/* Actions */}
+      
       <div className="card-actions">
         <button className="btn-edit" onClick={() => onEdit(room)}>
-          <i className="fas fa-cog"></i>
-          Configurer
+          <i className="fas fa-edit"></i> Modifier
         </button>
-        {room.live && (
-          <button className="btn-monitor">
-            <i className="fas fa-eye"></i>
-            Surveiller
-          </button>
-        )}
+        <button className="btn-designer" onClick={() => onOpenDesigner(room)}>
+          <i className="fas fa-cube"></i> Ouvrir Designer
+        </button>
         <button className="btn-delete" onClick={() => onDelete(room.id)}>
-          <i className="fas fa-trash-alt"></i>
+          <i className="fas fa-trash-alt"></i> Supprimer
         </button>
       </div>
     </div>
   );
 }
 
+// Modal d'ajout/modification de salle
+function RoomModal({ room, onSave, onClose }) {
+  const [formData, setFormData] = useState({
+    name: room?.name || "",
+    etage: room?.etage || "1er étage",
+    description: room?.description || "",
+    camera: room?.camera || "",
+    capacite: room?.capacite || 18
+  });
+
+  const etages = [ "1er étage", "2ème étage", "3ème étage","4ème étage" ];
+  const cameras = ["Aucune", "CAM_RDC_01", "CAM_RDC_02", "CAM_ET1_01", "CAM_ET1_02", "CAM_ET2_01", "CAM_ET2_02", "CAM_ET3_01", "CAM_ET3_02"];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) {
+      alert("Veuillez saisir un nom de salle");
+      return;
+    }
+    onSave({
+      ...formData,
+      id: room?.id || `ROOM_${Date.now()}`,
+      planConfigured: room?.planConfigured || false,
+      createdAt: room?.createdAt || new Date().toISOString().split('T')[0],
+      places: formData.capacite,
+      tablesCount: 0,
+      chaisesCount: formData.capacite,
+      mobilier: room?.mobilier || null,
+      cameraConfig: room?.cameraConfig || null
+    });
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-container" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2><i className="fas fa-door-open"></i> {room ? "Modifier la salle" : "Ajouter une salle"}</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+            <div className="form-group">
+              <label><i className="fas fa-tag"></i> Nom de la salle</label>
+              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ex: Salle 1.1" className="form-input" required />
+            </div>
+            <div className="form-group">
+              <label><i className="fas fa-building"></i> Étage</label>
+              <select value={formData.etage} onChange={e => setFormData({...formData, etage: e.target.value})} className="form-select">
+                {etages.map(e => <option key={e}>{e}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label><i className="fas fa-info-circle"></i> Description</label>
+              <input type="text" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Ex: Salle de TP Informatique" className="form-input" />
+            </div>
+            <div className="form-group">
+              <label><i className="fas fa-chair"></i> Capacité (places)</label>
+              <input type="number" value={formData.capacite} onChange={e => setFormData({...formData, capacite: parseInt(e.target.value)})} min="10" max="40" className="form-input" />
+              <small className="form-hint">Capacité recommandée : 16 à 22 places</small>
+            </div>
+            <div className="form-group">
+              <label><i className="fas fa-video"></i> Caméra associée</label>
+              <select value={formData.camera} onChange={e => setFormData({...formData, camera: e.target.value === "Aucune" ? null : e.target.value})} className="form-select">
+                {cameras.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn-cancel" onClick={onClose}>Annuler</button>
+            <button type="submit" className="btn-save">{room ? "Enregistrer" : "Créer la salle"}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function SallesPage() {
-  const [rooms, setRooms] = useState(initialRooms);
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showRoomModal, setShowRoomModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [showEditor, setShowEditor] = useState(false);
+  const [showDesigner, setShowDesigner] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterEtage, setFilterEtage] = useState("all");
+
+  useEffect(() => {
+    const savedRooms = localStorage.getItem("rooms_config");
+    
+    setTimeout(() => {
+      let mockRooms = generateMockRooms();
+      if (savedRooms) {
+        const parsed = JSON.parse(savedRooms);
+        mockRooms = mockRooms.map(room => {
+          const saved = parsed.find(r => r.id === room.id);
+          return saved ? { ...room, ...saved } : room;
+        });
+      }
+      setRooms(mockRooms);
+      setLoading(false);
+    }, 500);
+  }, []);
+
+  const saveRooms = (updatedRooms) => {
+    setRooms(updatedRooms);
+    localStorage.setItem("rooms_config", JSON.stringify(updatedRooms));
+  };
 
   const stats = {
     total: rooms.length,
-    enCours: rooms.filter(r => r.status === "en-cours").length,
-    programmees: rooms.filter(r => r.status === "programme").length,
-    placesTotales: rooms.reduce((sum, r) => sum + r.physicalCapacity, 0)
+    disponibles: rooms.filter(r => !r.estOccupee).length,
+    placesTotales: rooms.reduce((sum, r) => sum + r.capacite, 0),
+    cameras: rooms.filter(r => r.camera).length
   };
 
-  const handleEdit = (room) => { setSelectedRoom(room); setShowEditor(true); };
-  const handleDelete = (id) => setRooms(r => r.filter(x => x.id !== id));
-  const handleAdd = () => {
-    const newRoom = {
-      id: Date.now(), name: "Nouvelle salle", floor: "Étage 1",
-      physicalCapacity: 30, examCapacity: 30, tables: 5,
-      exam: "—", status: "programme", time: "— – —", live: false,
-      niveau: "L1", specialite: "Génie Logiciel", groupes: ["Groupe A"],
-      enseignant: "—", placedCount: 0, aiEngine: "ResNet50",
-      camera: "IIT-EXT-NEW",
-    };
-    setSelectedRoom(newRoom);
-    setShowEditor(true);
+  const filteredRooms = rooms.filter(room => {
+    const matchSearch = room.name.toLowerCase().includes(search.toLowerCase()) ||
+                        (room.description && room.description.toLowerCase().includes(search.toLowerCase()));
+    const matchEtage = filterEtage === "all" || room.etage === filterEtage;
+    return matchSearch && matchEtage;
+  });
+
+  const handleAddRoom = () => {
+    setSelectedRoom(null);
+    setShowRoomModal(true);
   };
-  const handleSave = (updated) => {
-    setRooms(prev => {
-      const exists = prev.find(r => r.id === updated.id);
-      if (exists) return prev.map(r => r.id === updated.id ? { ...r, ...updated } : r);
-      return [...prev, updated];
-    });
-    setShowEditor(false);
+
+  const handleEditRoom = (room) => {
+    setSelectedRoom(room);
+    setShowRoomModal(true);
+  };
+
+  const handleSaveRoom = (roomData) => {
+    let updatedRooms;
+    if (selectedRoom) {
+      updatedRooms = rooms.map(r => r.id === selectedRoom.id ? { ...r, ...roomData } : r);
+    } else {
+      const newRoom = { ...roomData, id: `ROOM_${Date.now()}` };
+      updatedRooms = [newRoom, ...rooms];
+    }
+    saveRooms(updatedRooms);
+    setShowRoomModal(false);
     setSelectedRoom(null);
   };
 
-  const filtered = rooms.filter(r => {
-    const matchSearch = r.name.toLowerCase().includes(search.toLowerCase()) ||
-                        r.exam.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === "all" || r.status === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  const handleDeleteRoom = (id) => {
+    if (window.confirm("Supprimer définitivement cette salle ?")) {
+      const updatedRooms = rooms.filter(r => r.id !== id);
+      saveRooms(updatedRooms);
+    }
+  };
+
+  const handleOpenDesigner = (room) => {
+    setSelectedRoom(room);
+    setShowDesigner(true);
+  };
+
+const handleSaveDesigner = (updatedRoom) => {
+  const updatedRooms = rooms.map(r => 
+    r.id === updatedRoom.id ? updatedRoom : r
+  );
+  saveRooms(updatedRooms);
+  setShowDesigner(false);
+  setSelectedRoom(null);
+};
+
+  const uniqueEtages = ["all", ...new Set(rooms.map(r => r.etage))];
+
+  if (loading) {
+    return (
+      <div className="salles-page loading">
+        <div className="spinner"></div>
+        <p>Chargement des salles...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="salles-page">
@@ -208,85 +273,111 @@ export default function SallesPage() {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1></h1>
+          <h1><i className="fas fa-door-open"></i> Gestion des salles</h1>
+          <p className="page-subtitle">Préparation et configuration des salles d'examen</p>
         </div>
-        <button className="btn-primary" onClick={handleAdd}>
-          <i className="fas fa-plus"></i>
-          Nouvelle salle
+        <button className="btn-add" onClick={handleAddRoom}>
+          <i className="fas fa-plus"></i> Ajouter une salle
         </button>
       </div>
 
-      {/* Filters */}
+      {/* Statistiques */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon blue"><i className="fas fa-door-open"></i></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.total}</div>
+            <div className="stat-label">Total salles</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon green"><i className="fas fa-check-circle"></i></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.disponibles}</div>
+            <div className="stat-label">Disponibles</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon orange"><i className="fas fa-chair"></i></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.placesTotales}</div>
+            <div className="stat-label">Places totales</div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon purple"><i className="fas fa-video"></i></div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.cameras}</div>
+            <div className="stat-label">Caméras</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filtres */}
       <div className="filters-section">
         <div className="search-wrapper">
-          <i className="fas fa-search search-icon"></i>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Rechercher une salle ou un examen..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+          <i className="fas fa-search"></i>
+          <input type="text" placeholder="Rechercher une salle..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        <div className="filter-tabs">
-          {[
-            { value: "all", label: "Toutes", icon: "fas fa-th-large" },
-            { value: "en-cours", label: "En cours", icon: "fas fa-play-circle" },
-            { value: "programme", label: "Programmées", icon: "fas fa-clock" },
-            { value: "termine", label: "Terminées", icon: "fas fa-check-circle" },
-          ].map(filter => (
-            <button
-              key={filter.value}
-              className={`filter-tab ${filterStatus === filter.value ? "active" : ""}`}
-              onClick={() => setFilterStatus(filter.value)}
-            >
-              <i className={filter.icon}></i>
-              {filter.label}
+        <div className="etage-filters">
+          {uniqueEtages.map(etage => (
+            <button key={etage} className={`etage-filter ${filterEtage === etage ? "active" : ""}`} onClick={() => setFilterEtage(etage)}>
+              {etage === "all" ? "Tous les étages" : etage}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Rooms Grid */}
-      {filtered.length > 0 ? (
+      {/* Liste des salles */}
+      {filteredRooms.length > 0 ? (
         <>
           <div className="rooms-grid">
-            {filtered.map(room => (
-              <RoomCard key={room.id} room={room} onEdit={handleEdit} onDelete={handleDelete} />
+            {filteredRooms.map(room => (
+              <RoomCard 
+                key={room.id} 
+                room={room} 
+                onEdit={handleEditRoom}
+                onOpenDesigner={handleOpenDesigner}
+                onDelete={handleDeleteRoom}
+              />
             ))}
-            <div className="add-card" onClick={handleAdd}>
+            <div className="add-card" onClick={handleAddRoom}>
               <div className="add-card-content">
-                <i className="fas fa-plus-circle add-icon"></i>
+                <i className="fas fa-plus-circle"></i>
                 <h4>Ajouter une salle</h4>
-                <p>Configurer un nouveau plan d'examen</p>
+                <p>Créer une nouvelle salle d'examen</p>
               </div>
             </div>
           </div>
           <div className="pagination-info">
             <i className="fas fa-door-open"></i>
-            {filtered.length} salle(s) affichée(s) sur {rooms.length}
+            {filteredRooms.length} salle(s) affichée(s) sur {rooms.length}
           </div>
         </>
       ) : (
         <div className="empty-state">
-          <div className="empty-icon">
-            <i className="fas fa-door-closed"></i>
-          </div>
+          <i className="fas fa-door-closed"></i>
           <h3>Aucune salle trouvée</h3>
           <p>Modifiez votre recherche ou ajoutez une nouvelle salle</p>
-          <button className="btn-primary" onClick={handleAdd}>
-            <i className="fas fa-plus"></i>
-            Nouvelle salle
-          </button>
+          <button className="btn-add" onClick={handleAddRoom}>Nouvelle salle</button>
         </div>
       )}
 
-      {/* 3D Editor Modal */}
-      {showEditor && selectedRoom && (
-        <RoomEditor3D
+      {/* Modal Ajouter/Modifier salle */}
+      {showRoomModal && (
+        <RoomModal
           room={selectedRoom}
-          onSave={handleSave}
-          onClose={() => { setShowEditor(false); setSelectedRoom(null); }}
+          onSave={handleSaveRoom}
+          onClose={() => { setShowRoomModal(false); setSelectedRoom(null); }}
+        />
+      )}
+
+      {/* Room Designer */}
+      {showDesigner && selectedRoom && (
+        <RoomDesigner2D
+          room={selectedRoom}
+          onSave={handleSaveDesigner}
+          onClose={() => { setShowDesigner(false); setSelectedRoom(null); }}
         />
       )}
     </div>

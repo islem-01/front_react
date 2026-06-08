@@ -1,0 +1,402 @@
+/* src/components/RoomDesigner2D/RoomDesigner2D.css - Design Moderne Épuré */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.designer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.designer-container {
+  width: 95vw;
+  max-width: 1400px;
+  height: 90vh;
+  background: #ffffff;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Header épuré */
+.designer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.datetime-info {
+  font-family: 'Inter', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5c5f6b;
+}
+
+.camera-info {
+  font-family: 'Inter', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: #3b82f6;
+  background: #f0f7ff;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.designer-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: #f5f5f5;
+  color: #8b8f9c;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.designer-close:hover {
+  background: #e8e8e8;
+  color: #2d2f36;
+}
+
+/* Body */
+.designer-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Sidebar gauche - Design moderne */
+.designer-sidebar {
+  width: 280px;
+  background: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 24px;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.object-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: #fafbfc;
+  border: 1px solid #eff0f2;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  transition: all 0.2s;
+}
+
+.object-item:hover {
+  background: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.object-item img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+/* Boutons profondeur */
+.depth-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.depth-buttons button {
+  flex: 1;
+  padding: 10px 0;
+  background: #fafbfc;
+  border: 1px solid #eff0f2;
+  border-radius: 10px;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.depth-buttons button:hover:not(:disabled) {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.depth-buttons button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.current-depth {
+  font-size: 13px;
+  font-weight: 500;
+  color: #3b82f6;
+  text-align: center;
+  padding: 10px;
+  background: #f0f7ff;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+
+/* Boutons taille */
+.size-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.size-btn {
+  flex: 1;
+  padding: 8px 0;
+  background: #fafbfc;
+  border: 1px solid #eff0f2;
+  border-radius: 10px;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.size-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* Bouton rotation */
+.rotation-btn {
+  width: 100%;
+  padding: 10px;
+  background: #fafbfc;
+  border: 1px solid #eff0f2;
+  border-radius: 10px;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rotation-btn:hover {
+  background: #f3f4f6;
+}
+
+.rotation-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Actions */
+.action-btn {
+  width: 100%;
+  padding: 10px;
+  background: #fafbfc;
+  border: 1px solid #eff0f2;
+  border-radius: 10px;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #ef4444;
+}
+
+/* Bouton enregistrer */
+.btn-save {
+  width: 100%;
+  padding: 12px;
+  background: #1f2937;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+
+.btn-save:hover {
+  background: #111827;
+}
+
+.divider {
+  height: 1px;
+  background: #eff0f2;
+  margin: 12px 0;
+}
+
+/* Zone canvas */
+.designer-canvas-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.room-canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: auto;
+}
+
+/* Objets */
+.room-object {
+  position: absolute;
+  transition: all 0.15s ease;
+  cursor: grab;
+}
+
+.room-object:active {
+  cursor: grabbing;
+}
+
+.room-object.selected {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.room-object img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Coins de contrôle */
+.resize-corner {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background: #ef4444;
+  border: 2px solid white;
+  border-radius: 4px;
+  cursor: nw-resize;
+  z-index: 20;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.rotate-corner {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 16px;
+  height: 16px;
+  background: #10b981;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 20;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.resize-corner:hover, .rotate-corner:hover {
+  transform: scale(1.2);
+}
+
+/* Sidebar droite */
+.info-sidebar {
+  width: 240px;
+  background: #ffffff;
+  border-left: 1px solid #f0f0f0;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 13px;
+  color: #1f2937;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row span {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.info-row strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.info-row.highlight {
+  background: #f8fafc;
+  margin: 0 -20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+}
+
+.info-row.highlight strong {
+  color: #3b82f6;
+  font-size: 16px;
+}
+
+/* Scrollbar fine */
+.designer-sidebar::-webkit-scrollbar,
+.info-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.designer-sidebar::-webkit-scrollbar-track,
+.info-sidebar::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.designer-sidebar::-webkit-scrollbar-thumb,
+.info-sidebar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
